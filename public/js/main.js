@@ -10,8 +10,8 @@ class Velocity {
 
 class Position {
     constructor() {
-        this.x = 10;
-        this.y = 10;
+        this.x = 0;
+        this.y = 0;
     }
 }
 
@@ -23,48 +23,72 @@ class Apple {
     }
 }
 
-context.fillStyle = "#000"
-context.fillRect(0, 0, canvas.width, canvas.height);
+class Snake {
+    constructor() {
+        this.position = new Position();
+        this.velocity = new Velocity();
+        this.position.x = 10;
+        this.position.y = 10;
+        this.tail = 5;
+        this.trail = [];
+    }
+}
 
-const velocity = new Velocity();
-const position = new Position();
 const gridSize = 20;
 const tileCount = 20;
+const snake = new Snake();
 const apple = new Apple();
 
 function input(event) {
     switch (event.code) {
         case "ArrowUp":
-            velocity.y = -1;
+            snake.velocity.y = -1;
             break;
         case "ArrowDown":
-            velocity.y = +1;
+            snake.velocity.y = +1;
         case "ArrowLeft":
-            velocity.x = -1;
+            snake.velocity.x = -1;
         case "ArrowRight":
-            velocity.x = +1;
+            snake.velocity.x = +1;
     }
 }
 
 function gameLoop() {
-    position.x += velocity.x;
-    position.y += velocity.y;
+    snake.position.x += snake.velocity.x;
+    snake.position.y += snake.velocity.y;
 
-    if (position.x < 0) {
-        position.x = tileCount-1;
+    if (snake.position.x < 0) {
+        snake.position.x = tileCount-1;
     }
-    if (position.x > tileCount-1) {
-        position.x = 0;
+    if (snake.position.x > tileCount-1) {
+        snake.position.x = 0;
     }
-    if (position.y < 0) {
-        position.y = tileCount-1;
+    if (snake.position.y < 0) {
+        snake.position.y = tileCount-1;
     }
-    if (position.y > tileCount-1) {
-        position.y = 0;
+    if (snake.position.y > tileCount-1) {
+        snake.position.y = 0;
     }
+
+    context.fillStyle = "#000"
+    context.fillRect(0, 0, canvas.width, canvas.height);
 
     context.fillStyle = "red";
     context.fillRect(apple.position.x * gridSize, apple.position.y * gridSize, gridSize-2, gridSize-2);
+
+    context.fillStyle = "lime";
+    for (let i = 0; i < snake.trail.length; i++) {
+        context.fillRect(snake.trail[i].position.x * gridSize, snake.trail[i].position.y * gridSize, gridSize-2, gridSize-2);
+        if (snake.trail[i].position.x == snake.position.x && snake.trail[i].position.y == snake.position.y) {
+            snake.tail = 5;
+        }
+    }
+
+    if (apple.position.x == snake.position.x && apple.position.y == snake.position.y) {
+        snake.tail++;
+        apple.position.x = Math.floor(Math.random() * tileCount);
+        apple.position.y = Math.floor(Math.random() * tileCount);
+    }
 }
 
 setInterval(gameLoop, 1000/15);
